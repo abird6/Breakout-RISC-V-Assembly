@@ -3,6 +3,9 @@
 # Implementation: 	Anthony Bird
 #					Luke Canny
 # Oct 2022
+# Description:		This is stage A of RISC-V assembly Breakout implementation.
+#					Lines marked with <TODO> indicate modification required for stage B
+#					For more info on stage A/B specs, see repository documentation (README.txt)
 
 # ====== Register allocation START ======
 # x0 always = 0
@@ -71,9 +74,11 @@ main:
    processBall:
     bne x9, x0, loop1       # ballNumDlyCount = 0? => skip check ball functions 
     jal x1, chkBallZone     # find ball zone, update 1. ball, 2. wall, 3. score, 4. lives, loop or end game   *****Retuun x19 NSBallXAdd, x21 NSBallXAdd
-    jal x1, updateBallVec   
+# <TODO>: jump to endgame if lives = 0
+	jal x1, updateBallVec   
     jal x1, updateBallMem   # clear CSBallYAdd row, write ballVec to NSBallYAdd, CSBallYAdd = NSBallYAdd (and for XAdd too) 
-    jal x1, UpdateScoreMem
+	jal x1, updateWallMem
+	jal x1, UpdateScoreMem
     jal x1, UpdateLivesMem
     add x9, x0, x24         # load ballNumDlyCount start value
     jal x0, loop1
@@ -94,7 +99,6 @@ updateWallMem:
  # srai x16, x16, 16	  # shift right arthmetic immediate
  
  sw x16, 0(x5)			  # store 0xffffffff into memory
- 
  jalr x0,  0(x1)          # ret
 # ====== Wall functions END ======
 
@@ -129,20 +133,31 @@ updateBallMem: 		      # write to memory. Requires NSBallXAdd and NSBallYAdd.
 
 
 chkBallZone:
+# <TODO>: 	- Implement NE, NW, SE, SW ball movement
+#			- New ball direction vector based on paddle point-of-contact
+#			- Ball movement into row 15 (wall) at points where wall is missing
+#			- Ball bounce from arena boundaries
 	updateNSBallYAdd:
 		addi x12, x0, 1				# x12 = unused register
 		beq x22, x12, goUp
 		bne x22, x12, goDown
 		
-	scorePoint:	
-		addi x29, x29, 1 			# increment score 
-		beq x0, x0, goDown
+	chkWallValue:	
+		or x11, x17, x16 			# combine ballVec and wallVec 
+		beq x11, x16, scorePoint	# if the ball has not hit a gap in the wall -> score a point
+		addi x21, x21, 4			# if next wall segment is missing -> continue to arena boundary
+		beq x0, x0, goDown			# bounce off arena
+		
+	scorePoint:
+		addi x29, x29, 1 			# increment score
+		xor x16, x17, x16			# remove segment of wall that contacts ball
+		beq x0, x0, goDown			# invert ball direction
 		
 	goUp:
 		# check for wall
 		addi x23, x0, 1				# set NSBallDir to 'up'
 		addi x13, x0, 0x00000038 	# x13 = spare register | 0x00000038 = row below wall 
-		beq x20, x13, scorePoint
+		beq x20, x13, chkWallValue
 		addi x21, x21, 4			# increment NSBallYAdd by 4 (move one row up)		
 		beq x0, x0, ret_chkBallZone	# Added by Luke 07/11/22 - return the function.
 		
@@ -157,7 +172,16 @@ chkBallZone:
 	chkPaddlePos:
 		or x11, x17, x25 				# combine ballVec and paddleVec
 		beq x11, x25, goUp				# if ball is in line with paddle -> bounce	
+		addi x21, x21, -4				# decrement NSBallYAdd by 4 (move one row down)
 		addi x30, x30, -1 				# decrement a life if  ball not in line with paddle
+		beq x0, x0, respawn
+	
+	respawn:
+		beq x30, x0, ret_chkBallZone	# check number of lives -> 0 lives = Endgame
+		addi x21, x21, 4				# increment NSBallYAdd for respawn above paddle
+		addi x23, x0, 1					# invert NSBallDir
+# <TODO>: change NSBallXadd to move ball back to the center
+		
 	ret_chkBallZone:
 		jalr x0, 0(x1)          		# ret
 
@@ -166,7 +190,6 @@ chkBallZone:
 
 # ====== Paddle functions START ======
 updatePaddleMem:     # Generate new paddleVec and write to memory. Requires paddleSize and paddleXAddLSB 
- # x4 program variable
  addi x4, x0, 1	 	 # Set program variable to 1.
  addi x25, x0, 1	 # Set LSB of paddle vec to 1.
  
@@ -184,7 +207,7 @@ updatePaddleMem:     # Generate new paddleVec and write to memory. Requires padd
 
 
 chkPaddle:
- # read left/right paddle control switches, memory address 0x00030008
+ # <TODO>: read left/right paddle control switches, memory address 0x00030008
  # one clock delay is required in memory peripheral to register change in switch state
  lui  x4, 0x00030    # 0x00030000 
  addi x4, x4, 8      # 0x00030008 # IOIn(31:0) address 
@@ -320,7 +343,8 @@ waitForGameGo:                    # wait 0-1-0 on input IOIn(2) control switches
 
 
 
-endGame:                          # highlight game over in display 
+endGame:                          
+# <TODO>: highlight game over in display 
   jalr x0, 0(x1)                  # ret
   
 # ====== Other functions END ======
