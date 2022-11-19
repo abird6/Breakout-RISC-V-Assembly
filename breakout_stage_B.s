@@ -43,7 +43,6 @@
 #  x29 Score
 #  x30 Lives
 # x31  Not used
-
 # ====== Register allocation END ======
 
 main:
@@ -74,6 +73,7 @@ main:
     jal x1, chkBallZone     # find ball zone, update 1. ball, 2. wall, 3. score, 4. lives, loop or end game   *****Retuun x19 NSBallXAdd, x21 NSBallXAdd
 	jal x1, updateBallAdd	# update ball X and Y addresses, based on direction found from chkBallZone
 # <TODO>: jump to endgame if lives = 0
+	beq x0, x30, endGame
 	jal x1, updateBallVec   
     jal x1, updateBallMem   # clear CSBallYAdd row, write ballVec to NSBallYAdd, CSBallYAdd = NSBallYAdd (and for XAdd too) 
 	jal x1, updateWallMem
@@ -81,22 +81,16 @@ main:
     jal x1, UpdateLivesMem
     add x9, x0, x24         # load ballNumDlyCount start value
     jal x0, loop1
-
-   1b: jal x0, 1b           # loop until reset asserted
+   
+   
  
 
 # ====== Wall functions START ======
 # The Wall Memory location is 0x0000003c (ROW 15) -> Note: 3c = 60 (4x15)
 # This function is only called from the set up. We want to load 0xffffffff into memory address 0x0000003c
 updateWallMem:
-
-#======== The commented code is not even required because setupDefaultArena loads the registers with the right values :>
-
  andi x5, x5, 0			  # and immediate register 5 with 0 to clear it.
  addi x5, x5, 60	      # add immediate 60 to register x5
- # lui x16, 0xfffff	      #  x16 wallVec value, default 0xffffffff
- # srai x16, x16, 16	  # shift right arthmetic immediate
- 
  sw x16, 0(x5)			  # store 0xffffffff into memory
  jalr x0,  0(x1)          # ret
 # ====== Wall functions END ======
@@ -291,6 +285,23 @@ chkPaddle:
  lui  x4, 0x00030    # 0x00030000 
  addi x4, x4, 8      # 0x00030008 # IOIn(31:0) address 
  lw   x3, 0(x4)      # read IOIn(31:0) switches
+ 
+ addi x11, x0, 2	 # x11(1:0) = 10.
+ or x11, x11, x3	 # IOIn(31:0) OR 0x00000002 (IOIn(1:0) OR 10)
+ bne x11, x0, paddleLeft		# If the result of the OR function is not zero, then bit 1 must be asserted.
+ 
+ addi x11, x0, 2	 # x11 = 0x00000001
+ or x11, x11, x3	 # IOIn(31:0) OR 0x00000001
+ bne x11, x0, paddleRight		# If results of the OR function is not zero, then bit 0 must be asserted
+ 
+ paddleLeft:
+ slli x27, x27, 1
+ beq x0, x0, ret_chkPaddle
+ 
+ paddleRight:
+ srli x27, x27, 1
+ beq x0, x0, ret_chkPaddle
+ 
  ret_chkPaddle:
   jalr x0, 0(x1)    # ret
 # ====== Paddle functions END ======
@@ -422,8 +433,105 @@ waitForGameGo:                    # wait 0-1-0 on input IOIn(2) control switches
 
 
 
-endGame:                          
-# <TODO>: highlight game over in display 
+endGame:           
+  # Row 0 unchanged (we wish to preserve the score on the screen)
+  
+  # Row 1
+  addi x4, x0, 0	# Clear Program Variable
+  addi x5, x0, 4	# Load address into memory address register
+  lui x4, 0x1c21d	# Loading 0x1c21d200 into program variable (pixel data)
+  addi x4, x4, 0x200
+  sw x4, 0(x5)		# Storing into memory
+  
+  # Row 2
+  addi x4, x0, 0	
+  addi x5, x0, 8	# 	x22521200
+  lui x4, 0x22521	
+  addi x4, x4, 0x200
+  sw x4, 0(x5)		
+  
+  # Row 3
+  addi x4, x0, 0	
+  addi x5, x0, 12	# 	x229B9C00
+  lui x4, 0x229B9	
+  addi x4, x4, 0xC00
+  sw x4, 0(x5)	  
+  
+  # Row 4
+  addi x4, x0, 0	
+  addi x5, x0, 16	# 	x228A1200
+  lui x4, 0x228A1	
+  addi x4, x4, 0x200
+  sw x4, 0(x5)	
+  
+  # Row 5			- Also x228A1200
+  addi x5, x0, 20	 
+  sw x4, 0(x5)	
+  
+  # Row 6
+  addi x4, x0, 0	
+  addi x5, x0, 24	# 	1c89dc00
+  lui x4, 0x1C89D	
+  addi x4, x4, 0xC00
+  sw x4, 0(x5)	
+  
+  # Row 7
+  addi x4, x0, 0	
+  addi x5, x0, 28	# 	x00000000
+  sw x4, 0(x5)	
+  
+  # Row 8
+  addi x5, x0, 32	# 	x00000000
+  sw x4, 0(x5)	
+  
+  # Row 9
+  addi x4, x0, 0	
+  addi x5, x0, 36	# 	x1caa9c00
+  lui x4, 0x1CAA9	
+  addi x4, x4, 0xC00
+  sw x4, 0(x5)	
+  
+  # Row 10
+  addi x4, x0, 0	
+  addi x5, x0, 40	# 	x22aaa000
+  lui x4, 0x22AAA	
+  addi x4, x4, 0x000
+  sw x4, 0(x5)	
+  
+  # Row 11
+  addi x4, x0, 0	
+  addi x5, x0, 44	# 	x2EEAB800
+  lui x4, 0x2EEAB	
+  addi x4, x4, 0x800
+  sw x4, 0(x5)	
+  
+  # Row 12
+  addi x4, x0, 0	
+  addi x5, x0, 48	# 	20AAA000
+  lui x4, 0x20AAA	
+  addi x4, x4, 0x000
+  sw x4, 0(x5)	
+  
+  # Row 13	- Also x22521200
+  addi x5, x0, 52	
+  sw x4, 0(x5)	
+  
+  # Row 14
+  addi x4, x0, 0	
+  addi x5, x0, 56	# 	x1c451c00
+  lui x4, 0x1C451
+  addi x4, x4, 0xc00
+  sw x4, 0(x5)	
+  
+  # Row 15
+  addi x4, x0, 0	
+  addi x5, x0, 60	# 	x22521200
+  sw x4, 0(x5)	
+
+  
+  1b: jal x0, 1b           # loop until reset asserted
+  
+  
   jalr x0, 0(x1)                  # ret
   
 # ====== Other functions END ======
