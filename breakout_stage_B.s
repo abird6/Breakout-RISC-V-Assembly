@@ -455,7 +455,7 @@ endGame:
   # Row 3
   addi x4, x0, 0	
   addi x5, x0, 12	# 	x229B9C00
-  lui x4, 0x229B9	
+  lui x4, 0x229BA	
   addi x4, x4, 0xC00
   sw x4, 0(x5)	  
   
@@ -473,7 +473,7 @@ endGame:
   # Row 6
   addi x4, x0, 0	
   addi x5, x0, 24	# 	1c89dc00
-  lui x4, 0x1C89D	
+  lui x4, 0x1C89E	
   addi x4, x4, 0xC00
   sw x4, 0(x5)	
   
@@ -489,7 +489,7 @@ endGame:
   # Row 9
   addi x4, x0, 0	
   addi x5, x0, 36	# 	x1caa9c00
-  lui x4, 0x1CAA9	
+  lui x4, 0x1CAAA	
   addi x4, x4, 0xC00
   sw x4, 0(x5)	
   
@@ -503,7 +503,7 @@ endGame:
   # Row 11
   addi x4, x0, 0	
   addi x5, x0, 44	# 	x2EEAB800
-  lui x4, 0x2EEAB	
+  lui x4, 0x2EEAC	
   addi x4, x4, 0x800
   sw x4, 0(x5)	
   
@@ -521,7 +521,7 @@ endGame:
   # Row 14
   addi x4, x0, 0	
   addi x5, x0, 56	# 	x1c451c00
-  lui x4, 0x1C451
+  lui x4, 0x1C452
   addi x4, x4, 0xc00
   sw x4, 0(x5)	
   
