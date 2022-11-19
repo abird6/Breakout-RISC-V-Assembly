@@ -331,8 +331,8 @@ setupDefaultArena:
   addi x19, x0, 16    # NSBallXAdd (4:0)
   addi x20, x0, 12    # CSBallYAdd (4:0)			# Changed from 13 to 12...
   addi x21, x0, 12    # NSBallYAdd (4:0)			# Changed from 13 to 12... 
-  addi x22, x0, 6     # CSBallDir  (2:0) N 
-  addi x23, x0, 6	  # NSBallDir  (2:0) N
+  addi x22, x0, 4     # CSBallDir  (2:0) N 
+  addi x23, x0, 4	  # NSBallDir  (2:0) N
   addi x24, x0, 1     # ballNumDlyCount (4:0)
  # Paddle
   lui  x25, 0x0007c   # paddleVec 0b0000 0000 0000 0111 1100 0000 0000 0000 = 0x0007c000
