@@ -263,7 +263,7 @@ setupDefaultArena:
 setupArena1: 
  # dlyCountMax 
 					  # 12.5MHz clock frequency. Two instructions per delay cycle => 6,250,000 delay cycles per second, 625,000 (0x98968) delay cycles per 100msec
-  lui  x15, 0x98968   # 0x98968000 
+  lui  x15, 0x98968   # 0x98968000 98968
   srli x15, x15, 12   # 0x00098968 
   #addi x15, x0, 2    # low count delay, for testing 
  # Wall
