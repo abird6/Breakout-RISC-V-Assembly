@@ -283,25 +283,20 @@ chkPaddle:
  # <TODO>: read left/right paddle control switches, memory address 0x00030008
  # one clock delay is required in memory peripheral to register change in switch state
  lui  x4, 0x00030    # 0x00030000 
- addi x4, x4, 8      # 0x00030008 # IOIn(31:0) address 
+ addi x4, x4, 8      # 0x00030008 # IOIn(31:0) address  
  lw   x3, 0(x4)      # read IOIn(31:0) switches
- 
- addi x11, x0, 2	 # x11(1:0) = 10.
- or x11, x11, x3	 # IOIn(31:0) OR 0x00000002 (IOIn(1:0) OR 10)
- bne x11, x0, paddleLeft		# If the result of the OR function is not zero, then bit 1 must be asserted.
- 
- addi x11, x0, 2	 # x11 = 0x00000001
- or x11, x11, x3	 # IOIn(31:0) OR 0x00000001
- bne x11, x0, paddleRight		# If results of the OR function is not zero, then bit 0 must be asserted
- 
+ addi x11, x0, 1
+ and x11, x11, x3
+ bne x11, x0, paddleRight
+ addi x11, x0, 2
+ and x11, x11, x3
+ bne x11, x0, paddleLeft
+ beq x0, x0, ret_chkPaddle
  paddleLeft:
- slli x27, x27, 1
+ addi x27, x27, 1
  beq x0, x0, ret_chkPaddle
- 
  paddleRight:
- srli x27, x27, 1
- beq x0, x0, ret_chkPaddle
- 
+ sub x27, x27, x11
  ret_chkPaddle:
   jalr x0, 0(x1)    # ret
 # ====== Paddle functions END ======
@@ -497,7 +492,7 @@ endGame:
   lui x4, 0x22AAA	
   addi x4, x4, 0x000
   sw x4, 0(x5)	
-  
+    
   # Row 11
   addi x4, x0, 0	
   addi x5, x0, 44	# 	x2EEAB800
