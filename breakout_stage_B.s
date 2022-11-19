@@ -73,7 +73,7 @@ main:
     jal x1, chkBallZone     # find ball zone, update 1. ball, 2. wall, 3. score, 4. lives, loop or end game   *****Retuun x19 NSBallXAdd, x21 NSBallXAdd
 	jal x1, updateBallAdd	# update ball X and Y addresses, based on direction found from chkBallZone
 # <TODO>: jump to endgame if lives = 0
-	beq x0, x30, endGame
+	beq x0, x30, endGame	#<todo on the line above is completed by this line>
 	jal x1, updateBallVec   
     jal x1, updateBallMem   # clear CSBallYAdd row, write ballVec to NSBallYAdd, CSBallYAdd = NSBallYAdd (and for XAdd too) 
 	jal x1, updateWallMem
