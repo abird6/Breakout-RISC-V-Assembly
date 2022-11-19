@@ -45,6 +45,13 @@
 # x31  Not used
 # ====== Register allocation END ======
 
+
+### REMAINING TASKS: 	- SET UP ALL THE TEST ARENAS
+###						- End Game screen
+###						- A bonus feature
+###						- Do we need to change to zoning scheme of VHDL code?
+
+
 main:
   #jal x1, clearArena 
   #jal x1, waitForGameGo    # wait for IOIn(2) input to toggle 0-1-0
@@ -427,7 +434,7 @@ waitForGameGo:                    # wait 0-1-0 on input IOIn(2) control switches
   jalr x0, 0(x1)                  # ret
 
 
-
+# ======================   End game image   ======================
 endGame:           
   # Row 0 unchanged (we wish to preserve the score on the screen)
   
@@ -528,5 +535,88 @@ endGame:
   
   
   jalr x0, 0(x1)                  # ret
+
+# ======================   Win game image   ======================
+winGame:           
+  # Row 0 unchanged (we wish to preserve the score on the screen)
+  # Row 1 unchanged (we wish to preserve the number of lives remaining)
+  
+  # Row 3-6 are all empty
+  addi x5, x0, 12	
+  sw x0, 0(x5)		
+  addi x5, x0, 16	
+  sw x0, 0(x5)		
+  addi x5, x0, 20	
+  sw x0, 0(x5)		
+  addi x5, x0, 24	
+  sw x0, 0(x5)		
+  
+  # ROW 7
+  addi x4, x0, 0
+  addi x5, x0, 28
+  lui x4, 0x36556
+  addi x4, x4, 0xd0a
+  sw x4, 0(x5)
+  
+  
+  # Row 8
+  addi x4, x0, 0	
+  addi x5, x0, 32	
+  lui x4, 0x49555	
+  addi x4, x4, 0x100
+  sw x4, 0(x5)	  
+  
+  # Row 9
+  addi x4, x0, 0	
+  addi x5, x0, 36	
+  lui x4, 0x49556	
+  addi x4, x4, 0xD0A
+  sw x4, 0(x5)	
+
+  # Row 10
+  addi x4, x0, 0	
+  addi x5, x0, 40	
+  lui x4, 0x49555	
+  addi x4, x4, 0x52A
+  sw x4, 0(x5)	
+  
+  # Row 11
+  addi x4, x0, 0	
+  addi x5, x0, 44	
+  lui x4, 0x4959a	
+  addi x4, x4, 0x9eA
+  sw x4, 0(x5)	
+  
+  # Row 12
+  addi x4, x0, 0	
+  addi x5, x0, 48	
+  lui x4, 0x41000	
+  addi x4, x4, 0xA
+  sw x4, 0(x5)
+  
+  # Row 13
+  addi x4, x0, 0	
+  addi x5, x0, 52	
+  lui x4, 0x41400	
+  addi x4, x4, 0xA
+  sw x4, 0(x5)
+  
+  # Row 14
+  addi x4, x0, 0	
+  addi x5, x0, 56	
+  lui x4, 0x41000	
+  sw x4, 0(x5)
+  
+  # Row 15
+  addi x4, x0, 0	
+  addi x5, x0, 60	
+  sw x4, 0(x5)
+  
+  1b: jal x0, 1b           # loop until reset asserted
+  
+  
+  jalr x0, 0(x1)                  # ret
+  
+  
   
 # ====== Other functions END ======
