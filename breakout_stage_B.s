@@ -337,7 +337,7 @@ setupDefaultArena:
  # Paddle
   lui  x25, 0x0007c   # paddleVec 0b0000 0000 0000 0111 1100 0000 0000 0000 = 0x0007c000
   addi x26, x0, 5     # paddleSize
-  addi x27, x0, 12    # paddleXAddLSB
+  addi x27, x0, 14    # paddleXAddLSB
   addi x28, x0, 1     # paddleNumDlyCount 
  # Score
   addi x29, x0, 0     # score
