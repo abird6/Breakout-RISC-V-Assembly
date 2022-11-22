@@ -675,7 +675,7 @@ winGame:
 testbench0:  
 	lui   x15,  0x98968     # 0x98968000 
   srli  x15,  x15,  9	    # 0x00098968 
-  addi x15, x0, 2       # low count delay, for testing 
+  addi x15, x0, 2         # low count delay, for testing 
   
   # Wall
   xori  x16,  x0,   -1    # wall x16 = 0xffffffff
@@ -686,8 +686,8 @@ testbench0:
   addi  x19,  x0,   18    # NSBallXAdd (4:0)
   addi  x20,  x0,   20    # CSBallYAdd (4:0)		(Address 20 = Row 6)	
   addi  x21,  x0,   20    # NSBallYAdd (4:0)		(Address 20 = Row 6)		 
-  addi  x22,  x0,   0     # CSBallDir  (2:0) = 000 = S
-  addi  x23,  x0,   0 	  # NSBallDir  (2:0) = 000 = S
+  addi  x22,  x0,   0     # CSBallDir  (2:0) = 000 = South
+  addi  x23,  x0,   0 	  # NSBallDir  (2:0) = 000 = South
   addi  x24,  x0,   1     # ballNumDlyCount (4:0)
   
   # Paddle
@@ -716,7 +716,7 @@ testbench0:
 testbench0:  
 	lui   x15,  0x98968     # 0x98968000 
   srli  x15,  x15,  9	    # 0x00098968 
-  addi x15, x0, 2       # low count delay, for testing 
+  addi x15, x0, 2         # low count delay, for testing 
   
   # Wall
   xori  x16,  x0,   -1    # wall x16 = 0xffffffff
@@ -727,8 +727,49 @@ testbench0:
   addi  x19,  x0,   14    # NSBallXAdd (4:0)
   addi  x20,  x0,   20    # CSBallYAdd (4:0)		(Address 20 = Row 6)	
   addi  x21,  x0,   20    # NSBallYAdd (4:0)		(Address 20 = Row 6)
-  addi  x22,  x0,   0     # CSBallDir  (2:0) = 000 = S
-  addi  x23,  x0,   0 	  # NSBallDir  (2:0) = 000 = S
+  addi  x22,  x0,   0     # CSBallDir  (2:0) = 000 = South
+  addi  x23,  x0,   0 	  # NSBallDir  (2:0) = 000 = South
+  addi  x24,  x0,   1     # ballNumDlyCount (4:0)
+  
+  # Paddle
+  lui   x25,  0x0007c     # paddleVec 0b0000 0000 0000 0111 1100 0000 0000 0000 = 0x0007c000
+  addi  x26,  x0,   5     # paddleSize
+  addi  x27,  x0,   14    # paddleXAddLSB
+  addi  x28,  x0,   1     # paddleNumDlyCount 
+  
+  # BONUS: Static Paddles
+  lui   x31,  0x1fc00
+  addi  x31,  x31,  0x3f8
+  addi  x5,   x0,   0
+  sw    x31,  44(x5)
+  
+  # Score
+  addi  x29,  x0,   0     # score
+  addi x30,   x0,   3     # lives 
+  jalr  x0,   0(x1)       # ret
+
+# =================================== Test 2 Description ============================= #
+# Test Number:				2
+# Description:				Bounce ball off the centre of the paddle
+#                     Ball will deflect in the north direction (No change in X component)
+# =================================== End of Description ============================= #
+
+testbench0:  
+	lui   x15,  0x98968     # 0x98968000 
+  srli  x15,  x15,  9	    # 0x00098968 
+  addi x15, x0, 2         # low count delay, for testing 
+  
+  # Wall
+  xori  x16,  x0,   -1    # wall x16 = 0xffffffff
+  
+  # Ball
+  lui   x17,  0x00010     # ballVec 0b0000 0000 0000 0001 0000 0000 0000 0000 = 0x0007c000
+  addi  x18,  x0,   16    # CSBallXAdd (4:0)
+  addi  x19,  x0,   16    # NSBallXAdd (4:0)
+  addi  x20,  x0,   20    # CSBallYAdd (4:0)		(Address 20 = Row 6)	
+  addi  x21,  x0,   20    # NSBallYAdd (4:0)		(Address 20 = Row 6)
+  addi  x22,  x0,   0     # CSBallDir  (2:0) = 000 = South
+  addi  x23,  x0,   0 	  # NSBallDir  (2:0) = 000 = South
   addi  x24,  x0,   1     # ballNumDlyCount (4:0)
   
   # Paddle
