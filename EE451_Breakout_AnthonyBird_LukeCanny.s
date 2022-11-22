@@ -833,8 +833,8 @@ testbench3:
 # =================================== Test 4 Description ============================= #
 # Test Number:				4
 # Description:				Bounce ball off in the SW corner of the arena (Zone X edge case)
-#                     Ball will bounce from SW movement to NE movement.
-#                     Paddle is present - No lives lost or respawn
+#                     Paddle is not present - Live is lost and ball will respawn
+#                     Ball will not bounce, it will reset.
 # =================================== End of Description ============================= #
 
 testbench4:  
@@ -853,6 +853,47 @@ testbench4:
   addi  x21,  x0,   24    # NSBallYAdd (4:0)		(Address 24 = Row 6)
   addi  x22,  x0,   2     # CSBallDir  (2:0) = 010 = SW 
   addi  x23,  x0,   2 	  # NSBallDir  (2:0) = 010 = SW
+  addi  x24,  x0,   1     # ballNumDlyCount (4:0)
+  
+  # Paddle
+  lui   x25,  0x0007c     # paddleVec 0b0000 0000 0000 0111 1100 0000 0000 0000 = 0x0007c000
+  addi  x26,  x0,   5     # paddleSize
+  addi  x27,  x0,   27    # paddleXAddLSB
+  addi  x28,  x0,   1     # paddleNumDlyCount 
+  
+  # BONUS: Static Paddles
+  lui   x31,  0x1fc00
+  addi  x31,  x31,  0x3f8
+  addi  x5,   x0,   0
+  sw    x31,  44(x5)
+  
+  # Score
+  addi  x29,  x0,   0     # score
+  addi x30,   x0,   3     # lives 
+  jalr  x0,   0(x1)       # ret
+
+# =================================== Test 5 Description ============================= #
+# Test Number:				5
+# Description:				Bounce ball off in the NW corner of the arena (Zone X edge case)
+#                     Ball will bounce from NW movement to SE movement.
+# =================================== End of Description ============================= #
+
+testbench3:  # X=28, Y = 11	
+	lui   x15,  0x98968     # 0x98968000 
+  srli  x15,  x15,  9	    # 0x00098968 
+  addi x15, x0, 2         # low count delay, for testing 
+  
+  # Wall
+  xori  x16,  x0,   -1    # wall x16 = 0xffffffff
+  
+  # Ball
+  lui   x17,  0x00010     # ballVec 0b0000 0000 0000 0001 0000 0000 0000 0000 = 0x0007c000
+  addi  x18,  x0,   28    # CSBallXAdd (4:0)
+  addi  x19,  x0,   28    # NSBallXAdd (4:0)
+  addi  x20,  x0,   44    # CSBallYAdd (4:0)		(Address 44 = Row 11)	
+  addi  x21,  x0,   44    # NSBallYAdd (4:0)		(Address 44 = Row 11)
+  addi  x22,  x0,   6     # CSBallDir  (2:0) = 110 = NW 
+  addi  x23,  x0,   6 	  # NSBallDir  (2:0) = 110 = NW
   addi  x24,  x0,   1     # ballNumDlyCount (4:0)
   
   # Paddle
