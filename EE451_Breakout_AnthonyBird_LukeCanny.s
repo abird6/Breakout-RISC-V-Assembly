@@ -1120,3 +1120,44 @@ testbench10:
   addi  x29,  x0,   0     # score
   addi x30,   x0,   3     # lives 
   jalr  x0,   0(x1)       # ret
+
+# =================================== Test 11 Description ============================= #
+# Test Number:				11
+# Description:				Bounce ball off the north (top) side of the fixed barriers (The bonus feature)
+#                     Ball's Y direction will be flipped. Ball's X direction will be perserved
+# =================================== End of Description ============================= #
+
+testbench11:    # x = 25,y= 13
+	lui   x15,  0x98968     # 0x98968000 
+  srli  x15,  x15,  9	    # 0x00098968 
+  addi x15, x0, 2         # low count delay, for testing 
+  
+  # Wall    
+  xori  x16,  x0,   -1    # wall x16 = 0xffffffff
+
+  # Ball        
+  lui   x17,  0x00010     # ballVec 
+  addi  x18,  x0,   25    # CSBallXAdd (4:0)
+  addi  x19,  x0,   25    # NSBallXAdd (4:0)
+  addi  x21,  x0,   52    # NSBallYAdd (4:0)	(Address 52 = Row 13)
+  addi  x20,  x0,   52    # CSBallYAdd (4:0)	(Address 52 = Row 13)	
+  addi  x22,  x0,   1     # CSBallDir  (2:0) = 001 = SE
+  addi  x23,  x0,   1 	  # NSBallDir  (2:0) = 001 = SE
+  addi  x24,  x0,   1     # ballNumDlyCount (4:0)
+  
+  # Paddle
+  lui   x25,  0x0007c     # paddleVec 0b0000 0000 0000 0111 1100 0000 0000 0000 = 0x0007c000
+  addi  x26,  x0,   5     # paddleSize
+  addi  x27,  x0,   14    # paddleXAddLSB
+  addi  x28,  x0,   1     # paddleNumDlyCount 
+  
+  # BONUS: Static Paddles
+  lui   x31,  0x1fc00
+  addi  x31,  x31,  0x3f8
+  addi  x5,   x0,   0
+  sw    x31,  44(x5)
+  
+  # Score
+  addi  x29,  x0,   0     # score
+  addi x30,   x0,   3     # lives 
+  jalr  x0,   0(x1)       # ret
