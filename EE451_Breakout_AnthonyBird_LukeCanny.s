@@ -174,38 +174,7 @@ chkBallZone:                  # determine ball location and trigger game event
     blt x18, x4, zone6          # if 30 > CSBallXAdd >= 21
 
     beq x0, x0, zone5           # Else: zone5.
-
-
-		# addi  x4,   x0, 10
-		# blt   x18,  x4, zone5OR6_1 # CSBallXAdd less than 10?             A
-		# beq   x18,  x4, zone5OR6_3 # CSBallXAdd = 10?                     B
-		# addi  x4,   x0, 29
-		# blt   x18,  x4, zone5OR6_2 # CSBallXAdd less than 29?             C
-		# beq   x18,  x4, zone5OR6_3 # CSBallXAdd = 29?                     D
 		
-		# zone5OR6_1:                  # CSBallXAdd less than 10
-		# 	addi  x4,   x0,   2        # 2
-		# 	bge   x18,  x4,   zone6    # If XAddress > 2, move to zone 6 - Sound
-		# 	bne   x18,  x4,   zone5    # If XAddress =/= 2, move to zone 5.
-		# 	xori  x4,   x22,  2        # x22 = CSBallDir (2 is 010)
-		# 	beq   x22,  x4,   zone5    # If CSBallDir = 010 (SE)                # What about NE????     - No check for Zone 3, this is ok because taken care off previously.
-		# 	beq   x0,   x0,   zone6    
-	  #	
-	  #	
-		# zone5OR6_2:
-		# 	addi  x4,   x0,   21
-		# 	bge   x18,  x4,   zone6
-		# 	bne   x18,  x4,   zone5
-		# 	xori  x4,   x22,  2
-		# 	beq   x22,  x4,   zone5
-		# 	beq   x0,   x0,   zone6
-	  #
-		# zone5OR6_3:
-		# 	xori  x4,   x22,  1
-		# 	beq   x22,  x4,   zone5
-		# 	beq   x0,   x0,   zone6
-		
-	
 	zone1:	# above paddle (row 3)
 		or    x11,  x17,  x25 				  # combine ballVec and paddleVec
 		bne   x11,  x25,  respawn			  # if ball is not in line with paddle -> respawn
