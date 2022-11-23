@@ -205,11 +205,14 @@ chkBallZone:                  # determine ball location and trigger game event
 
 	
   zone3: 	# arena boundary
-		ori x4,   x22,  2
-		beq x22,  x4,   leftBoundary   # if ball is moving left
+    ori x4,   x22,  6
+		beq x22,  x4,   leftBoundary   # if ball is moving north west
+		ori x4,   x22,  5
+		beq x22,  x4,   rightBoundary  # if ball is moving north east
+    ori x4,   x22,  2
+		beq x22,  x4,   leftBoundary   # if ball is moving south west
 		ori x4,   x22,  1
-		beq x22,  x4,   rightBoundary  # if ball is moving right
-
+		beq x22,  x4,   rightBoundary  # if ball is moving south east
 		leftBoundary:
 			xori  x23,  x23,  3
 			beq   x0,   x0,   ret_chkBallZone
@@ -218,10 +221,31 @@ chkBallZone:                  # determine ball location and trigger game event
 			xori  x23,  x23,  3
 			beq   x0,   x0,   ret_chkBallZone
 		
+    
 		
 	zone4:	# corner	
-		xori  x23,  x23,  7				    # invert BallDir
+    # Check 1: Is ball in row 14? (Zone 3 is also located in row 3)
+    addi x4, x0, 56                  # Row 14
+    bne x4, x20, lowerZone4           # If not in row 14, skip score point.
+    # Check 2: Is wall piece missing already?
+    addi  x4,   x0,   4
+		# blt   x22,  x4,   zone5          # if CSBallDir = S or SW or SE
+		or    x11,  x17,  x16            # combine ballVec and wallVec 				
+		bne   x11,  x16,  skipScore      # if x11 = wallVec -> point of contact must have been a '1' -> score a point
+
+    # Score point start    
+    addi  x29,  x29,  1
+		xor   x16,  x17,  x16 
+    # score point finish
+    skipScore:
+    xori  x23,  x23,  7				    # invert BallDir
 		beq   x0,   x0,   ret_chkBallZone
+    
+    lowZone4:
+		or    x11,  x17,  x25 				  # combine ballVec and paddleVec
+		bne   x11,  x25,  respawn			  # if ball is not in line with paddle -> respawn
+    xori  x23,  x23,  7				    # invert BallDir
+    beq   x0,   x0,   ret_chkBallZone
 		
 		
 	zone5:	# free space
