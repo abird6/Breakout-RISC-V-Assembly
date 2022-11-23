@@ -651,7 +651,9 @@ endGame:
 
 # ======================   WinGame Image START  ======================
 winGame:           
-  # Row 0 unchanged (we wish to preserve the score on the screen)
+  # Row 0 Update Score 
+  addi   x5,   x0,   0     # memory base address
+  sw     x29,  0(x5)       # store score 
   # Row 1 unchanged (we wish to preserve the number of lives remaining)
   
   # Row 2-6 are all empty
