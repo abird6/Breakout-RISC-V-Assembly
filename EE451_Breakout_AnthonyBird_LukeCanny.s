@@ -654,7 +654,9 @@ winGame:
   # Row 0 unchanged (we wish to preserve the score on the screen)
   # Row 1 unchanged (we wish to preserve the number of lives remaining)
   
-  # Row 3-6 are all empty
+  # Row 2-6 are all empty
+  addi  x5, x0, 8	
+  sw    x0, 0(x5)
   addi  x5, x0, 12	
   sw    x0, 0(x5)		
   addi  x5, x0, 16	
