@@ -138,12 +138,12 @@ updateBallMem: 		            # write ball to memory
 
 chkBallZone:                  # determine ball location and trigger game event
   # finding ball Zone based on ball X & Y addresses
-  addi  x4,   x0,   12
-  beq   x20,  x4,   zone1		    # if in row 3
   addi  x4,   x0,   31
   beq   x18,  x4,   zone3OR4    # else if column 31
   addi  x4,   x0,   0
   beq   x18,  x4,   zone3OR4    # else if in column 0
+  addi  x4,   x0,   12
+  beq   x20,  x4,   zone1		    # if in row 3
   addi  x4,   x0,   56
   beq   x20,  x4,   zone2       # else if in row 14
   addi  x4,   x0,   40                                                # Row 10
@@ -154,10 +154,11 @@ chkBallZone:                  # determine ball location and trigger game event
   beq   x20,  x4,   zone5OR6    # else if in row 11                   # Actually checking Row 12.
   beq   x0,   x0,   zone5       # anywhere else in arena
 	zone3OR4:
-		addi  x4,   x0, 56
-		blt   x20,  x4, zone3       # if lower than row 14 -> arena boundary
-		beq   x0,   x0, zone4       # else -> arena corner
-
+		addi  x4,   x0, 56          # 56 = Row 14 (Row below wall)
+    beq x20, x4, zone4          # If in row 14, it is zone 4
+		addi  x4,   x0, 12          # 12 = Row 3 (Row just above paddle)
+    beq x20, x4, zone4          # If in row 3, it is zone 4
+		beq   x0,   x0, zone3       # else -> side piece.
 
 	zone5OR6:                                                           # Row 10, 11, or 12.
     addi x4, x0, 1              # x4 = 1
