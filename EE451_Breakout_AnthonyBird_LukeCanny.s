@@ -54,7 +54,7 @@ main:
   # jal x1, waitForGameGo    # wait for IOIn(2) input to toggle 0-1-0
 
   # jal x1, setupDefaultArena   # default arena for gameplay
-  jal x1, testbench3         # Run Test 0 
+  jal x1, testbench7         # Run Test 0 
 
 
 
@@ -93,7 +93,8 @@ main:
 updateWallMem:
  andi x5, x5, 0			  # and immediate register 5 with 0 to clear it.
  addi x5, x5, 60	    # add immediate 60 to register x5
- sw   x16, 0(x5)			# store 0xffffffff into memory
+ sw   x16, 0(x5)			# store wallVec into memory
+ beq x16, x0, winGame # If the walls is completely removed- Win Game
  jalr x0,  0(x1)      # ret
 # ====== Wall functions END ======
 
