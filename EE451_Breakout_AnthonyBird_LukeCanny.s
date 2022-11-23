@@ -225,8 +225,8 @@ chkBallZone:                  # determine ball location and trigger game event
 		
 	zone4:	# corner	
     # Check 1: Is ball in row 14? (Zone 3 is also located in row 3)
-    addi x4, x0, 56                  # Row 14
-    bne x4, x20, lowerZone4           # If not in row 14, skip score point.
+    addi  x4, x0, 56                  # Row 14
+    bne   x4, x20, lowerZone4           # If not in row 14, skip score point.
     # Check 2: Is wall piece missing already?
     addi  x4,   x0,   4
 		# blt   x22,  x4,   zone5          # if CSBallDir = S or SW or SE
@@ -241,7 +241,7 @@ chkBallZone:                  # determine ball location and trigger game event
     xori  x23,  x23,  7				    # invert BallDir
 		beq   x0,   x0,   ret_chkBallZone
     
-    lowZone4:
+    lowerZone4:
 		or    x11,  x17,  x25 				  # combine ballVec and paddleVec
 		bne   x11,  x25,  respawn			  # if ball is not in line with paddle -> respawn
     xori  x23,  x23,  7				    # invert BallDir
