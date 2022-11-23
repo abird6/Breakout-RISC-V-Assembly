@@ -54,7 +54,7 @@ main:
   # jal x1, waitForGameGo    # wait for IOIn(2) input to toggle 0-1-0
 
   # jal x1, setupDefaultArena   # default arena for gameplay
-  jal x1, testbench0         # Run Test 0 
+  jal x1, testbench3         # Run Test 0 
 
 
 
@@ -146,44 +146,63 @@ chkBallZone:                  # determine ball location and trigger game event
   beq   x18,  x4,   zone3OR4    # else if in column 0
   addi  x4,   x0,   56
   beq   x20,  x4,   zone2       # else if in row 14
-  addi  x4,   x0,   40
-  beq   x20,  x4,   zone5OR6    # else if in row 9
-  addi  x4,   x0,   48
-  beq   x20,  x4,   zone5OR6    # else if in row 11
+  addi  x4,   x0,   40                                                # Row 10
+  beq   x20,  x4,   zone5OR6    # else if in row 9                    # Actually checking row 10...
+  addi  x4,   x0,   44                                                # Row 11
+  beq   x20,  x4,   zone5OR6    
+  addi  x4,   x0,   48                                                # Row 12
+  beq   x20,  x4,   zone5OR6    # else if in row 11                   # Actually checking Row 12.
   beq   x0,   x0,   zone5       # anywhere else in arena
 	zone3OR4:
 		addi  x4,   x0, 56
 		blt   x20,  x4, zone3       # if lower than row 14 -> arena boundary
 		beq   x0,   x0, zone4       # else -> arena corner
-	zone5OR6:
-		addi  x4,   x0, 10
-		blt   x18,  x4, zone5OR6_1 
-		beq   x18,  x4, zone5OR6_3
-		addi  x4,   x0, 29
-		blt   x18,  x4, zone5OR6_2
-		beq   x18,  x4, zone5OR6_3
+
+
+	zone5OR6:                                                           # Row 10, 11, or 12.
+    addi x4, x0, 1              # x4 = 1
+    beq x18, x4, zone5          # If CSBallXAdd = 1 => Zone 5
+
+    addi x4, x0, 11             # x4 = 11
+    blt x18, x4, zone6          # If 11 > CSBallXAdd > 1  (CSBallXAdd > 1 is implied as CSBallXAdd = 1 and 0 handled previously)
+
+    addi x4, x0, 21             
+    blt x18, x4, zone5          # If 21 > CSBallXAdd >= 11
+
+    addi x4, x0, 30
+    blt x18, x4, zone6          # if 30 > CSBallXAdd >= 21
+
+    beq x0, x0, zone5           # Else: zone5.
+
+
+		# addi  x4,   x0, 10
+		# blt   x18,  x4, zone5OR6_1 # CSBallXAdd less than 10?             A
+		# beq   x18,  x4, zone5OR6_3 # CSBallXAdd = 10?                     B
+		# addi  x4,   x0, 29
+		# blt   x18,  x4, zone5OR6_2 # CSBallXAdd less than 29?             C
+		# beq   x18,  x4, zone5OR6_3 # CSBallXAdd = 29?                     D
 		
-		zone5OR6_1:                  
-			addi  x4,   x0,   2
-			bge   x18,  x4,   zone6
-			bne   x18,  x4,   zone5
-			xori  x4,   x22,  2
-			beq   x22,  x4,   zone5 
-			beq   x0,   x0,   zone6
-			
-			
-		zone5OR6_2:
-			addi  x4,   x0,   21
-			bge   x18,  x4,   zone6
-			bne   x18,  x4,   zone5
-			xori  x4,   x22,  2
-			beq   x22,  x4,   zone5
-			beq   x0,   x0,   zone6
-		
-		zone5OR6_3:
-			xori  x4,   x22,  1
-			beq   x22,  x4,   zone5
-			beq   x0,   x0,   zone6
+		# zone5OR6_1:                  # CSBallXAdd less than 10
+		# 	addi  x4,   x0,   2        # 2
+		# 	bge   x18,  x4,   zone6    # If XAddress > 2, move to zone 6 - Sound
+		# 	bne   x18,  x4,   zone5    # If XAddress =/= 2, move to zone 5.
+		# 	xori  x4,   x22,  2        # x22 = CSBallDir (2 is 010)
+		# 	beq   x22,  x4,   zone5    # If CSBallDir = 010 (SE)                # What about NE????     - No check for Zone 3, this is ok because taken care off previously.
+		# 	beq   x0,   x0,   zone6    
+	  #	
+	  #	
+		# zone5OR6_2:
+		# 	addi  x4,   x0,   21
+		# 	bge   x18,  x4,   zone6
+		# 	bne   x18,  x4,   zone5
+		# 	xori  x4,   x22,  2
+		# 	beq   x22,  x4,   zone5
+		# 	beq   x0,   x0,   zone6
+	  #
+		# zone5OR6_3:
+		# 	xori  x4,   x22,  1
+		# 	beq   x22,  x4,   zone5
+		# 	beq   x0,   x0,   zone6
 		
 	
 	zone1:	# above paddle (row 3)
@@ -220,7 +239,7 @@ chkBallZone:                  # determine ball location and trigger game event
 		beq x22,  x4,   leftBoundary   # if ball is moving left
 		ori x4,   x22,  1
 		beq x22,  x4,   rightBoundary  # if ball is moving right
-		
+
 		leftBoundary:
 			xori  x23,  x23,  3
 			beq   x0,   x0,   ret_chkBallZone
@@ -239,10 +258,67 @@ chkBallZone:                  # determine ball location and trigger game event
 		add   x23,  x0,   x22				    # NSBallDir = CSBallDir i.e. no change
 		beq   x0,   x0,   ret_chkBallZone
 		
-	zone6:	# approaching static paddle 
-		xori  x23,  x22,  4
-		beq   x0,   x0,   ret_chkBallZone
-	
+  zone6:
+    addi x4, x0, 44         # Row 11 (Address 44 in Memory)
+    bne x20, x4, row10_12   # Is current Y address NOT 44? - If so, we are in row 10 or row 12.
+    beq x20, x4, row11      # Else, we are in row 11.
+
+    row10_12:
+
+      addi x4, x0, 29
+      beq x4, x18, leftZone6  # If (X Address = 29)
+      addi x4, x0, 10         #         or
+      beq x4, x18, leftZone6  #    (X Address = 10) then => leftZone6
+      
+      addi x4, x0, 21
+      beq x4, x18, rightZone6 # If (X Address = 21)
+      addi x4, x0, 2          #         or
+      beq x4, x18, rightZone6 #    (X Address = 2) then => rightZone6
+      beq x0, x0, centreZone6
+
+
+
+      leftZone6:
+        addi x4, x0, 52       # 52 means row 13.
+        bne x20, x4, lowerLeftZone6
+
+        # Dealing with upper left zone of static paddle.
+        addi x4, x0, 1        # 001 = SE
+        bne x22, x4, zone5    # If the ball isnt travelling into the static paddle - No change - Zone 5.
+        addi   x23, x0, 6			# NSBallDir = NW.
+        beq   x0,   x0,   ret_chkBallZone
+
+        lowerLeftZone6:
+        addi x4, x0, 5        # 101 = NE
+        bne x22, x4, zone5    # If the ball isnt travelling into the static paddle - No change - Zone 5.
+        addi   x23, x0, 2			# NSBallDir = SW.
+        beq   x0,   x0,   ret_chkBallZone
+
+      rightZone6:
+        addi x4, x0, 52
+        bne x20, x4, lowerRightZone6
+        
+        # Dealing with upper right zone of static paddle.
+        addi x4, x0, 2        # 010 = SW
+        bne x22, x4, zone5    # If the ball isnt travelling into the static paddle - No change - Zone 5.
+        addi   x23, x0, 5			# NSBallDir = NE
+        beq   x0,   x0,   ret_chkBallZone
+        lowerRightZone6:
+        addi x4, x0, 6        # 010 = NW
+        bne x22, x4, zone5    # If the ball isnt travelling into the static paddle - No change - Zone 5.
+        addi   x23, x0, 1			# NSBallDir = SE
+        beq   x0,   x0,   ret_chkBallZone
+
+      centreZone6:
+        xori x23, x22, 4      # Invert Y direction, preserve X direction.
+        beq   x0,   x0,   ret_chkBallZone
+
+    row11:
+      beq x22, x0, zone5            # If the ball is moving straight down (000), it doesnt hit the static paddles - No change in movement (same as how zone5 behaves)
+      addi x4, x0, 4                # 4 = 100 which is North when looking at BallDir.
+      beq x22, x4, zone5            # If the ball is moving straight up (100), it doesnt hit the static paddles - No change in movement (same as how zone5 behaves). 
+      xori x23, x22, 3              # XOR CSBallDir(2:0) with 011. (Bit 2 is preserved, bits 1 and 0 are inverted - aka, Y direction preserved, X direction is inverted)
+      beq   x0,   x0,   ret_chkBallZone
 	
 	# addditional branches
 	respawn:
@@ -805,10 +881,10 @@ testbench3:
   
   # Ball
   lui   x17,  0x00010     # ballVec 
-  addi  x18,  x0,   28    # CSBallXAdd (4:0)
-  addi  x19,  x0,   28    # NSBallXAdd (4:0)
-  addi  x20,  x0,   44    # CSBallYAdd (4:0)		(Address 44 = Row 11)	
-  addi  x21,  x0,   44    # NSBallYAdd (4:0)		(Address 44 = Row 11)
+  addi  x18,  x0,   29    # CSBallXAdd (4:0)
+  addi  x19,  x0,   29    # NSBallXAdd (4:0)
+  addi  x20,  x0,   48    # CSBallYAdd (4:0)		(Address 44 = Row 11)	
+  addi  x21,  x0,   48    # NSBallYAdd (4:0)		(Address 44 = Row 11)
   addi  x22,  x0,   6     # CSBallDir  (2:0) = 110 = NW 
   addi  x23,  x0,   6 	  # NSBallDir  (2:0) = 110 = NW
   addi  x24,  x0,   1     # ballNumDlyCount (4:0)
@@ -1098,8 +1174,8 @@ testbench10:
   lui   x17,  0x00010     # ballVec 
   addi  x18,  x0,   19    # CSBallXAdd (4:0)
   addi  x19,  x0,   19    # NSBallXAdd (4:0)
-  addi  x21,  x0,   32    # NSBallYAdd (4:0)	(Address 32 = Row 8)
-  addi  x20,  x0,   32    # CSBallYAdd (4:0)	(Address 32 = Row 8)	
+  addi  x21,  x0,   36    # NSBallYAdd (4:0)	(Address 36 = Row 9)
+  addi  x20,  x0,   36    # CSBallYAdd (4:0)	(Address 36 = Row 9)	
   addi  x22,  x0,   6     # CSBallDir  (2:0) = 110 = NW
   addi  x23,  x0,   6 	  # NSBallDir  (2:0) = 110 = NW
   addi  x24,  x0,   1     # ballNumDlyCount (4:0)
